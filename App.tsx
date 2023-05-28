@@ -1,118 +1,101 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
+import {ScrollView, 
+  TouchableOpacity} from 'react-native';
+import axios from 'axios';
+import {useState, useEffect} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
+  Button,
+  AppBar,
+  Flex,
+  Box,
+  Spacer,
+  TextInput,
   Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+  VStack,
+} from '@react-native-material/core';
+import {} from '@react-native-material/core';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const TextInputExample = () => {
+  const [sheetData, setSheetData] = useState([]);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  function getAllSeries() {
+    const SHEET_ID = '1yAPooC0AMXtEoU6B72y59roYZCTWz2ALRCWxz9cvCqU';
+    const SHEET_NAME = 'Sheet1';
+    const API_KEY = 'AIzaSyAzX8_b8NCspY1uB2Bb_Y06ocyiWOkCyu0';
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?valueRenderOption=FORMATTED_VALUE&key=${API_KEY}`;
 
-function Section({children, title}: SectionProps): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+    axios
+      .get(url)
+      .then(function (response) {
+        // handle success
+        formatResponse(response.data);
+      })
+      .catch(function (error) {
+        // handle error
+        onError(error);
+      })
+      .finally(function () {
+        // always executed
+        console.log('ALL DONE LOADING DATA');
+      });
+  }
+
+  function formatResponse(response: any) {
+    const keys = response.values[0];
+    const data = response.values.slice(1);
+    const obj = data.map(arr =>
+      Object.assign({}, ...keys.map((k, i) => ({[k]: arr[i]}))),
+    );
+    setSheetData(obj);
+    console.log('obj', obj);
+  }
+
+  function onError(error: any) {
+    console.error(error);
+  }
+
+  function handleSetClick(item) {
+    console.log('Clicked on set:', item.sets);
+  }
+
+  useEffect(() => {
+    getAllSeries();
+  }, []);
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
+    <>
+      <AppBar title="OnlyFit" />
+      <ScrollView>
+        <Flex m={4} spacing={6} divider={true}>
+          <VStack divider={true}>
+            {sheetData.map((item, index) => {
+              return (
+                <Box
+                  key={index}
+                  borderWidth={1}
+                  borderColor="black"
+                  borderRadius={8}
+                  padding={12}
+                  flexDirection="row"
+                  justifyContent="space-between">
+                  <Text flex={1}>{item.exercise_name}</Text>
+                  <TouchableOpacity onPress={() => handleSetClick(item)}>
+                    <Text flex={1}>{item.sets + ' SETS'}</Text>
+                  </TouchableOpacity>
+                  <Text flex={1}>{item.reps + ' REPS'}</Text>
+                  <TextInput
+                    flex={1}
+                    style={{width: 80, borderWidth: 1, borderRadius: 4}}
+                    placeholder="Weight"
+                  />
+                </Box>
+              );
+            })}
+          </VStack>
+        </Flex>
       </ScrollView>
-    </SafeAreaView>
+    </>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+export default TextInputExample;
