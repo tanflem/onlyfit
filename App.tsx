@@ -21,7 +21,7 @@ const TextInputExample = () => {
   function getAllSeries() {
     const SHEET_ID = '1yAPooC0AMXtEoU6B72y59roYZCTWz2ALRCWxz9cvCqU';
     const SHEET_NAME = 'Sheet1';
-    const API_KEY = 'AIzaSyAzX8_b8NCspY1uB2Bb_Y06ocyiWOkCyu0';
+    const API_KEY = ;
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?valueRenderOption=FORMATTED_VALUE&key=${API_KEY}`;
 
     axios
